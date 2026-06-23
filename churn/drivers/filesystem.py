@@ -10,6 +10,7 @@ This is the canonical first driver for M002.001.
 
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 from pathlib import Path
 from typing import Any
@@ -45,8 +46,15 @@ class FileSystemDriver(SourceDriver):
         target = Path(query).resolve() if query else self.root
         items: list[SourceItem] = []
 
+        if not target.is_relative_to(self.root):
+            return items
+
+        respect_gitignore = self.config.get("respect_gitignore", True)
+        gitignore = _load_gitignore_patterns(self.root) if respect_gitignore else []
+
         if target.is_file():
-            items.append(self._make_item(target))
+            if not _is_gitignored(target, self.root, gitignore):
+                items.append(self._make_item(target))
             return items
 
         if not target.exists():
@@ -55,6 +63,8 @@ class FileSystemDriver(SourceDriver):
         max_bytes = int(self.config.get("max_file_bytes", 50 * 1024 * 1024))
         for p in sorted(target.rglob("*")):
             if any(part in _SKIP_DIR_NAMES for part in p.parts):
+                continue
+            if _is_gitignored(p, self.root, gitignore):
                 continue
             if p.is_file():
                 try:
@@ -111,3 +121,39 @@ class FileSystemDriver(SourceDriver):
             ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         }
         return mapping.get(suffix)
+
+
+def _load_gitignore_patterns(root: Path) -> list[tuple[str, bool]]:
+    """Parse root .gitignore into (pattern, is_directory) tuples."""
+    gi = root / ".gitignore"
+    if not gi.is_file():
+        return []
+    patterns: list[tuple[str, bool]] = []
+    for raw in gi.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or line.startswith("!"):
+            continue
+        is_dir = line.endswith("/")
+        patterns.append((line.rstrip("/"), is_dir))
+    return patterns
+
+
+def _is_gitignored(path: Path, root: Path, patterns: list[tuple[str, bool]]) -> bool:
+    """Return True when path matches a .gitignore pattern (simple fnmatch subset)."""
+    if not patterns:
+        return False
+    try:
+        rel = path.relative_to(root)
+    except ValueError:
+        return False
+    rel_s = str(rel).replace("\\", "/")
+    name = path.name
+    parts = rel.parts
+    for pat, is_dir in patterns:
+        if is_dir and pat in parts:
+            return True
+        if fnmatch.fnmatch(rel_s, pat) or fnmatch.fnmatch(name, pat):
+            return True
+        if "/" not in pat and fnmatch.fnmatch(rel_s, f"*/{pat}"):
+            return True
+    return False

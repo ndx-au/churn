@@ -48,5 +48,6 @@ For automatic enforcement, the `.claude/` rules/skills from DotProgress can be a
 | 2026-06-23 | Continued next steps (chunking wire, log.md, S3 B2 anon smoke, rich progress, docs) | .grok/ + .progress + code | Per previous autonomous plan + quality review |
 | 2026-06-23 | [parse] re-smoke richer PDF, extract config support, EKG roundtrip on PDF bundle, S3 B2 anon verified | code + .progress | Unstructured active, deeper M003 start, EKG checks |
 | 2026-06-23 | Opportunistic hardening pass (convert bugs, chunking, driver security, 12 new tests) | code + .progress/fixes | Harness maintenance /harness audit |
-| 2026-06-23 | Opportunistic hardening pass (convert bugs, chunking, driver security, 12 new tests) | code + .progress/fixes | Harness maintenance /harness audit |
+| 2026-06-23 | Second harness pass (HTTP URL auth, gitignore, S3 mock test, drivers skill) | code + .grok/ + .progress/fixes | /harness codebase audit |
+| 2026-06-23 | Comprehensive MkDocs docs (6 pages, CLI/drivers/OKF/roadmap) | docs/ + README | User request post-harness |
 

@@ -41,8 +41,8 @@ churn convert report.pdf --out ./pdf-okf   # uses rich extract, type 'PDF Docume
 - [x] OKF writer (frontmatter + grouped index + folder frontmatter.yaml + log.md + validate_bundle)
 - [x] Typer + Rich CLI (`drivers list`, `convert` --chunk, `preview`, `validate`)
 - [x] Light extractor (optional unstructured for pdf/docx/html, hints to fm, chunk stub)
-- [x] Tests (21p +1s), real smokes (curl, trees, B2 S3 anon, EKG roundtrips, richer PDF/DOCX with [parse])
-- [ ] Deeper M003 chunking wiring / M004 log polish / M005 (Nuitka, docs)
+- [x] Tests (40 passing), real smokes (curl, trees, B2 S3 anon, EKG roundtrips, richer PDF/DOCX with [parse])
+- [x] M003 chunking wired; M004 log/preview/validate; M005 docs (MkDocs site in `docs/`)
 - [x] Basic pytest + smoke tests
 - Working real-world smoke: local files + live HTTP (httpbin)
 
@@ -63,4 +63,4 @@ pytest
 ruff check .
 ```
 
-Contributions via drivers (see CONTRIBUTING-DRIVER.md when written).
+Full documentation: `docs/` (serve with `mkdocs serve`). Contributions via drivers: [CONTRIBUTING-DRIVER.md](CONTRIBUTING-DRIVER.md).

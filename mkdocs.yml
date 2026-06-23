@@ -2,17 +2,21 @@ site_name: churn — OKF Converter
 site_description: Universal legacy-to-Open-Knowledge-Format converter (community reference)
 site_url: https://example.com/churn
 repo_url: https://github.com/ndx-video/churn
+repo_name: ndx-video/churn
+edit_uri: edit/main/docs/
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
   - CLI Reference: cli.md
   - Drivers: drivers.md
   - OKF & EKG: okf-ekg.md
+  - Contributing: contributing.md
   - Roadmap: roadmap.md
 theme:
   name: material
   features:
     - navigation.sections
+    - content.code.copy
 markdown_extensions:
   - admonition
   - codehilite
@@ -20,5 +24,8 @@ markdown_extensions:
       permalink: true
 plugins:
   - search
-# M005.003 stub: run with `pip install mkdocs mkdocs-material; mkdocs serve`
-# Full content expanded from specs/ + README. Publish via gh-pages or similar.
+validation:
+  links:
+    not_found: ignore
+    absolute_links: ignore
+# M005.003 — run: pip install mkdocs mkdocs-material && mkdocs serve

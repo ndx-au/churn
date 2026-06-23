@@ -21,6 +21,32 @@ def test_filesystem_rejects_path_outside_root(tmp_path: Path):
         driver.fetch_item(item)
 
 
+def test_filesystem_list_rejects_outside_root(tmp_path: Path):
+    root = tmp_path / "root"
+    outside = tmp_path / "outside.md"
+    root.mkdir()
+    outside.write_text("secret", encoding="utf-8")
+
+    driver = FileSystemDriver({"root": str(root)})
+    assert driver.list_items(str(outside)) == []
+
+
+def test_filesystem_respects_gitignore(tmp_path: Path):
+    (tmp_path / ".gitignore").write_text("*.secret\nignored/\n", encoding="utf-8")
+    (tmp_path / "visible.md").write_text("# Hi", encoding="utf-8")
+    (tmp_path / "hidden.secret").write_text("secret", encoding="utf-8")
+    ignored = tmp_path / "ignored"
+    ignored.mkdir()
+    (ignored / "nested.md").write_text("nested", encoding="utf-8")
+
+    driver = FileSystemDriver({"root": str(tmp_path)})
+    items = driver.list_items()
+    names = {Path(i.path_or_uri).name for i in items}
+    assert "visible.md" in names
+    assert "hidden.secret" not in names
+    assert not any("ignored" in i.path_or_uri for i in items)
+
+
 def test_filesystem_skips_git_dir(tmp_path: Path):
     (tmp_path / ".git").mkdir()
     (tmp_path / ".git" / "config").write_text("git", encoding="utf-8")

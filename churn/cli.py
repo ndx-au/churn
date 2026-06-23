@@ -12,6 +12,7 @@ import json
 import re
 from pathlib import Path
 from typing import Annotated, Any
+from urllib.parse import urlparse, urlunparse
 
 import typer
 from rich.console import Console
@@ -79,6 +80,21 @@ def drivers_list() -> None:
 app.add_typer(drivers_app, name="drivers")
 
 
+def _strip_url_credentials(url: str) -> tuple[str, tuple[str, str] | None]:
+    """Return (url_without_credentials, optional_basic_auth_tuple)."""
+    parsed = urlparse(url)
+    if not parsed.username:
+        return url, None
+    auth = (parsed.username, parsed.password or "")
+    host = parsed.hostname or ""
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    clean = urlunparse(
+        (parsed.scheme, host, parsed.path, parsed.params, parsed.query, parsed.fragment)
+    )
+    return clean, auth
+
+
 def _parse_driver_query(source: str) -> tuple[str, str] | None:
     """Parse `driver:query` when query is not a Windows drive path."""
     if "://" in source:
@@ -108,10 +124,16 @@ def _resolve_driver_and_query(
             qpath = Path(query).resolve()
             root = qpath if qpath.is_dir() else qpath.parent
             return get_driver("filesystem", {"root": str(root)}), str(qpath), root
+        if driver_name == "http":
+            clean_url, auth = _strip_url_credentials(query)
+            http_cfg = {"auth": auth} if auth else None
+            return get_driver("http", http_cfg), clean_url, None
         return get_driver(driver_name), query, None
 
     if source.startswith(("http://", "https://")):
-        return get_driver("http"), source, None
+        clean_url, auth = _strip_url_credentials(source)
+        http_cfg = {"auth": auth} if auth else None
+        return get_driver("http", http_cfg), clean_url, None
 
     if source.startswith(("s3://", "s3:")):
         s3_config: dict[str, Any] = {}

@@ -1,6 +1,6 @@
 ---
 name: churn-orchestrator
-description: "Orchestrates the full autonomous build of the churn project using specialist subagents. Trigger for: build churn, implement specs, advance M001/M002/M003..., add drivers, OKF rendering, smoke tests, improve previous work, fix issues, re-run slices. Always use this for follow-up on churn codebase."
+description: "Orchestrates the full autonomous build of the churn project using specialist subagents. Trigger for: build churn, implement specs, advance M001/M002/M003..., add drivers, OKF rendering, smoke tests, improve previous work, fix bugs, fix issues, harness audit, codebase hardening, re-run slices, opportunistic improvements. Always use this for follow-up on churn codebase."
 when-to-use: "Any work that advances the churn Python package implementation, drivers, OKF output, CLI, tests per the specs/ folder and ekg sibling compatibility. Re-runs, partials, and extensions."
 ---
 

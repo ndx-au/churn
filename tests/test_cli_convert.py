@@ -1,10 +1,11 @@
 """CLI integration tests for convert, validate, and drivers."""
 
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from churn.cli import app
+from churn.cli import _strip_url_credentials, app
 
 runner = CliRunner()
 
@@ -63,3 +64,37 @@ def test_drivers_group_shows_help():
     result = runner.invoke(app, ["drivers"])
     assert result.exit_code == 0
     assert "churn drivers list" in result.stdout
+
+
+def test_strip_url_credentials():
+    clean, auth = _strip_url_credentials("https://user:pass@example.com/path?q=1")
+    assert clean == "https://example.com/path?q=1"
+    assert auth == ("user", "pass")
+    plain, no_auth = _strip_url_credentials("https://example.com/plain")
+    assert plain == "https://example.com/plain"
+    assert no_auth is None
+
+
+def test_convert_s3_dispatch_mock(tmp_path: Path):
+    mock_client = MagicMock()
+    mock_paginator = MagicMock()
+    mock_client.get_paginator.return_value = mock_paginator
+    mock_paginator.paginate.return_value = [
+        {"Contents": [{"Key": "doc.md", "Size": 12, "ETag": '"abc"'}]}
+    ]
+    mock_body = MagicMock()
+    mock_body.read.return_value = b"# S3 Doc\n\nFrom bucket."
+    mock_client.get_object.return_value = {
+        "Body": mock_body,
+        "ContentType": "text/markdown",
+    }
+
+    out = tmp_path / "bundle"
+    with patch("boto3.client", return_value=mock_client):
+        result = runner.invoke(
+            app,
+            ["convert", "s3://mybucket/doc.md", "--out", str(out), "--s3-anonymous"],
+        )
+    assert result.exit_code == 0, result.stdout
+    assert (out / "doc.md").exists()
+    assert (out / "index.md").exists()
