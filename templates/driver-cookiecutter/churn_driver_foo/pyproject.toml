@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "churn-driver-foo"
+version = "0.1.0"
+description = "{{ cookiecutter.description }}"
+dependencies = ["churn"]
+
+[project.entry-points."churn.drivers"]
+foo = "churn_driver_foo:MyFooDriver"
+
+# M005.004 cookiecutter template stub. After cut: fill TODOs, pip install -e .[dev] in generated, test via churn drivers list

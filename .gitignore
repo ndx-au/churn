@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Agent harness ephemeral artifacts
+_workspace/
+agent-tools/
+mcps/

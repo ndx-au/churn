@@ -1,0 +1,8 @@
+{
+  "driver_name": "myfoo",
+  "description": "Churn driver for MyFoo source",
+  "author": "Your Name"
+}
+# M005.004 Driver cookiecutter stub.
+# Usage after full impl: cookiecutter templates/driver-cookiecutter
+# Produces installable churn-driver-foo package with entry point.
